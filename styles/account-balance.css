@@ -1,0 +1,279 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: #2c5282;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* Balance Card */
+.balance-card {
+    background: #d4f0e8;
+    border: 2px dashed #4a7c6c;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.balance-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.balance-item .label {
+    color: #4a7c6c;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.balance-item .amount {
+    color: #1a202c;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.balance-item.highlight .label {
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.balance-item.highlight .amount {
+    color: #1a202c;
+    font-size: 24px;
+}
+
+.separator {
+    color: #4a7c6c;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+/* Success Container */
+.success-container {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f0fdf4;
+    border-radius: 8px;
+}
+
+.success-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.success-text {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* Bank Details */
+.bank-details {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.bank-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.bank-icon {
+    font-size: 18px;
+}
+
+.bank-name {
+    color: #6b5b3a;
+    font-weight: 600;
+}
+
+.account-number {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.bank-amount {
+    color: #1a202c;
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+/* Sponsored Links */
+.sponsored-section {
+    margin-bottom: 25px;
+}
+
+.sponsored-section h3 {
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sponsor-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.sponsor-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.sponsor-logo {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.sponsor-name {
+    font-size: 11px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Featured Card */
+.featured-card {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.featured-card:hover {
+    background: #e5e7eb;
+}
+
+.featured-icon {
+    font-size: 28px;
+    min-width: 40px;
+}
+
+.featured-card h4 {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    flex: 1;
+}
+
+.arrow {
+    color: #9ca3af;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px 15px;
+        border-radius: 8px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+
+    .balance-card {
+        padding: 15px;
+        gap: 10px;
+    }
+
+    .balance-item .amount {
+        font-size: 18px;
+    }
+
+    .balance-item.highlight .amount {
+        font-size: 20px;
+    }
+
+    .sponsor-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    .sponsor-logo {
+        width: 45px;
+        height: 45px;
+        font-size: 11px;
+    }
+
+    .featured-card {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .featured-card h4 {
+        font-size: 12px;
+    }
+}
