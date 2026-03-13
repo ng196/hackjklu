@@ -1655,12 +1655,20 @@
             }
         }
 
+        // Wait for DOM to be fully loaded before initializing charts
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                console.log('Initializing charts...');
+                initSpendingTrendChart();
+                initCategoryChart();
+                initAccountChart();
+                initIncomeExpenseChart();
+                console.log('Charts initialized successfully');
+            }, 500);
+        });
+
         updateTime();
         setInterval(updateTime, 1000);
-        initSpendingTrendChart();
-        initCategoryChart();
-        initAccountChart();
-        initIncomeExpenseChart();
     </script>
 </body>
 </html>
