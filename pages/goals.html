@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Goals - Personal Finance</title>
+    <link rel="stylesheet" href="../styles/goals.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💰 FinPro</div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">Home</a></li>
+                <li><a href="manual-entry.html" class="nav-link">Manual Entry</a></li>
+                <li><a href="expenses.html" class="nav-link">Expenses</a></li>
+                <li><a href="goals.html" class="nav-link active">Goals</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Future Goals & Financial Planning</h1>
+            <p class="subtitle">Plan your future and see what you can afford based on your financial trends</p>
+        </div>
+
+        <!-- Financial Overview Cards -->
+        <div class="overview-cards">
+            <div class="overview-card">
+                <div class="overview-icon">💰</div>
+                <div class="overview-content">
+                    <div class="overview-label">Monthly Income</div>
+                    <div class="overview-value" id="monthlyIncome">₹0</div>
+                    <div class="overview-trend">Based on recent transactions</div>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">💸</div>
+                <div class="overview-content">
+                    <div class="overview-label">Monthly Expenses</div>
+                    <div class="overview-value" id="monthlyExpenses">₹0</div>
+                    <div class="overview-trend">Average spending</div>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">💳</div>
+                <div class="overview-content">
+                    <div class="overview-label">Monthly Savings</div>
+                    <div class="overview-value" id="monthlySavings">₹0</div>
+                    <div class="overview-trend" id="savingsRate">0% of income</div>
+                </div>
+            </div>
+
+            <div class="overview-card">
+                <div class="overview-icon">🎯</div>
+                <div class="overview-content">
+                    <div class="overview-label">Active Goals</div>
+                    <div class="overview-value" id="activeGoals">0</div>
+                    <div class="overview-trend">Tracking progress</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Goal Section -->
+        <div class="add-goal-section">
+            <h2>Create a New Goal</h2>
+            <form id="goalForm" class="goal-form">
+                <div class="form-grid">
+                    <!-- Goal Name -->
+                    <div class="form-group">
+                        <label for="goalName">Goal Name *</label>
+                        <input type="text" id="goalName" placeholder="e.g., Vacation, New Laptop, Car..." required>
+                        <span class="helper-text">What are you saving for?</span>
+                    </div>
+
+                    <!-- Goal Icon -->
+                    <div class="form-group">
+                        <label for="goalIcon">Icon/Emoji *</label>
+                        <input type="text" id="goalIcon" placeholder="🌍" maxlength="2" required>
+                        <span class="helper-text">Enter emoji or symbol</span>
+                    </div>
+
+                    <!-- Target Amount -->
+                    <div class="form-group">
+                        <label for="targetAmount">Target Amount (₹) *</label>
+                        <input type="number" id="targetAmount" placeholder="50000" step="100" required>
+                        <span class="helper-text">How much do you want?</span>
+                    </div>
+
+                    <!-- Current Savings -->
+                    <div class="form-group">
+                        <label for="currentSavings">Current Savings (₹)</label>
+                        <input type="number" id="currentSavings" placeholder="0" step="100">
+                        <span class="helper-text">Amount already saved</span>
+                    </div>
+
+                    <!-- Target Months -->
+                    <div class="form-group">
+                        <label for="targetMonths">Timeline (Months) *</label>
+                        <input type="number" id="targetMonths" placeholder="12" min="1" required>
+                        <span class="helper-text">In how many months?</span>
+                    </div>
+
+                    <!-- Priority -->
+                    <div class="form-group">
+                        <label for="priority">Priority</label>
+                        <select id="priority">
+                            <option value="low">🔵 Low</option>
+                            <option value="medium" selected>🟡 Medium</option>
+                            <option value="high">🔴 High</option>
+                        </select>
+                        <span class="helper-text">How important is this?</span>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="goalCategory">Category</label>
+                        <select id="goalCategory">
+                            <option value="">Select category</option>
+                            <option value="vacation">🌍 Vacation</option>
+                            <option value="tech">💻 Technology</option>
+                            <option value="vehicle">🚗 Vehicle</option>
+                            <option value="home">🏠 Home</option>
+                            <option value="education">📚 Education</option>
+                            <option value="wedding">💍 Wedding</option>
+                            <option value="investment">📈 Investment</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group full-width">
+                        <label for="goalDescription">Description</label>
+                        <textarea id="goalDescription" placeholder="Add details about your goal..." rows="2"></textarea>
+                        <span class="helper-text">Why is this goal important?</span>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions full-width">
+                        <button type="reset" class="btn btn-secondary">Clear</button>
+                        <button type="submit" class="btn btn-primary">Add Goal</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Goals List -->
+        <div class="goals-section">
+            <h2>Your Goals</h2>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">All Goals</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+            </div>
+
+            <!-- Goals Grid -->
+            <div class="goals-grid" id="goalsGrid">
+                <div class="no-goals">
+                    <p>🎯 No goals yet. Create your first goal above!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Future Affordability Analysis -->
+        <div class="analysis-section">
+            <h2>What Can You Afford?</h2>
+            <div class="analysis-grid">
+                <!-- Savings Projection Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3>Savings Projection (12 Months)</h3>
+                        <p class="chart-subtitle">Based on your current savings rate</p>
+                    </div>
+                    <canvas id="savingsChart"></canvas>
+                </div>
+
+                <!-- Affordability Grid -->
+                <div class="affordability-box">
+                    <h3>Monthly Savings Breakdown</h3>
+                    <div class="affordability-items">
+                        <div class="affordability-item">
+                            <div class="item-label">Monthly Savings</div>
+                            <div class="item-value" id="afMonthlySavings">₹0</div>
+                            <div class="item-detail">Your average monthly surplus</div>
+                        </div>
+
+                        <div class="affordability-item">
+                            <div class="item-label">Quarterly Savings</div>
+                            <div class="item-value" id="afQuarterlySavings">₹0</div>
+                            <div class="item-detail">Three months of savings</div>
+                        </div>
+
+                        <div class="affordability-item">
+                            <div class="item-label">Yearly Savings</div>
+                            <div class="item-value" id="afYearlySavings">₹0</div>
+                            <div class="item-detail">Annual savings potential</div>
+                        </div>
+
+                        <div class="affordability-item">
+                            <div class="item-label">2-Year Savings</div>
+                            <div class="item-value" id="afTwoYearSavings">₹0</div>
+                            <div class="item-detail">Two years of savings</div>
+                        </div>
+                    </div>
+
+                    <div class="affordability-suggestions">
+                        <h4>💡 Suggestions:</h4>
+                        <ul id="suggestions">
+                            <li>Start saving more to reach your goals faster</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-section">
+            <h2>Key Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <div class="metric-title">Savings Rate</div>
+                        <div class="metric-value" id="savingsRateMetric">0%</div>
+                        <div class="metric-description">Percentage of income saved</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">⏱️</div>
+                    <div class="metric-content">
+                        <div class="metric-title">Avg Goal Timeline</div>
+                        <div class="metric-value" id="avgTimeline">0 mo</div>
+                        <div class="metric-description">Average months to goal</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-content">
+                        <div class="metric-title">Total Goal Amount</div>
+                        <div class="metric-value" id="totalGoalAmount">₹0</div>
+                        <div class="metric-description">Combined goal targets</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">✅</div>
+                    <div class="metric-content">
+                        <div class="metric-title">Completion Rate</div>
+                        <div class="metric-value" id="completionRate">0%</div>
+                        <div class="metric-description">Total progress on all goals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Personal Finance Platform. All rights reserved.</p>
+    </footer>
+
+    <script src="../scripts/goals.js"></script>
+</body>
+</html>

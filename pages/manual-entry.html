@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Entry - Personal Finance</title>
+    <link rel="stylesheet" href="../styles/manual-entry.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💰 FinPro</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="manual-entry.html" class="nav-link active">Manual Entry</a></li>
+                <li><a href="expenses.html" class="nav-link">Expenses</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Manual Transaction Entry</h1>
+            <p class="subtitle">Add transactions that cannot be automatically detected</p>
+        </div>
+
+        <!-- Entry Type Tabs -->
+        <div class="entry-tabs">
+            <button class="entry-tab-btn active" data-type="expense">
+                <span class="tab-icon">💸</span>
+                <span>Add Expense</span>
+            </button>
+            <button class="entry-tab-btn" data-type="income">
+                <span class="tab-icon">💰</span>
+                <span>Add Income</span>
+            </button>
+        </div>
+
+        <!-- Main Form Container -->
+        <div class="form-container">
+            <!-- Expense Form -->
+            <form id="expenseForm" class="entry-form active">
+                <div class="form-grid">
+                    <!-- Amount Field -->
+                    <div class="form-group full-width">
+                        <label for="expenseAmount">Amount *</label>
+                        <div class="amount-input-group">
+                            <span class="currency">₹</span>
+                            <input type="number" id="expenseAmount" name="amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <span class="helper-text">Enter the expense amount</span>
+                    </div>
+
+                    <!-- Category Field -->
+                    <div class="form-group">
+                        <label for="expenseCategory">Category *</label>
+                        <select id="expenseCategory" name="category" required>
+                            <option value="">Select a category</option>
+                            <option value="food">🍔 Food & Dining</option>
+                            <option value="transport">🚗 Transportation</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="utilities">⚡ Utilities</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                            <option value="health">🏥 Health & Medicine</option>
+                            <option value="education">📚 Education</option>
+                            <option value="personal">💄 Personal Care</option>
+                            <option value="home">🏠 Home & Garden</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="form-group">
+                        <label for="expensePayment">Payment Method *</label>
+                        <select id="expensePayment" name="paymentMethod" required>
+                            <option value="">Select payment method</option>
+                            <option value="cash">💵 Cash</option>
+                            <option value="credit">💳 Credit Card</option>
+                            <option value="debit">🏧 Debit Card</option>
+                            <option value="upi">📱 UPI</option>
+                            <option value="bank">🏦 Bank Transfer</option>
+                            <option value="wallet">👜 Digital Wallet</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Field -->
+                    <div class="form-group">
+                        <label for="expenseDate">Date *</label>
+                        <input type="date" id="expenseDate" name="date" required>
+                        <span class="helper-text">Pick the expense date</span>
+                    </div>
+
+                    <!-- Time Field -->
+                    <div class="form-group">
+                        <label for="expenseTime">Time</label>
+                        <input type="time" id="expenseTime" name="time">
+                        <span class="helper-text">Optional: Transaction time</span>
+                    </div>
+
+                    <!-- Merchant/Vendor -->
+                    <div class="form-group">
+                        <label for="expenseMerchant">Merchant/Vendor</label>
+                        <input type="text" id="expenseMerchant" name="merchant" placeholder="e.g., Starbucks, Amazon, etc.">
+                        <span class="helper-text">Where the expense was made</span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group full-width">
+                        <label for="expenseDescription">Description *</label>
+                        <textarea id="expenseDescription" name="description" placeholder="Add details about this transaction..." rows="3" required></textarea>
+                        <span class="helper-text">What did you spend on? Be specific.</span>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="form-group full-width">
+                        <label for="expenseTags">Tags</label>
+                        <div class="tag-input">
+                            <input type="text" id="expenseTags" placeholder="e.g., recurring, bills, travel (press Enter to add)">
+                            <div class="tag-list"></div>
+                        </div>
+                        <span class="helper-text">Add tags to organize expenses</span>
+                    </div>
+
+                    <!-- Receipt Upload -->
+                    <div class="form-group full-width">
+                        <label for="expenseReceipt">Receipt/Proof</label>
+                        <div class="file-upload">
+                            <input type="file" id="expenseReceipt" name="receipt" accept="image/*,.pdf">
+                            <span class="upload-text">📎 Click to upload receipt or drag & drop</span>
+                        </div>
+                        <span class="helper-text">Upload receipt image or PDF (optional)</span>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions full-width">
+                        <button type="reset" class="btn btn-secondary">Clear</button>
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Income Form -->
+            <form id="incomeForm" class="entry-form">
+                <div class="form-grid">
+                    <!-- Amount Field -->
+                    <div class="form-group full-width">
+                        <label for="incomeAmount">Amount *</label>
+                        <div class="amount-input-group">
+                            <span class="currency">₹</span>
+                            <input type="number" id="incomeAmount" name="amount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        <span class="helper-text">Enter the income amount</span>
+                    </div>
+
+                    <!-- Source -->
+                    <div class="form-group">
+                        <label for="incomeSource">Income Source *</label>
+                        <select id="incomeSource" name="source" required>
+                            <option value="">Select source</option>
+                            <option value="salary">💼 Salary</option>
+                            <option value="freelance">💻 Freelance</option>
+                            <option value="investment">📈 Investment</option>
+                            <option value="bonus">🎁 Bonus</option>
+                            <option value="refund">↩️ Refund</option>
+                            <option value="gift">🎉 Gift</option>
+                            <option value="other">📝 Other</option>
+                        </select>
+                    </div>
+
+                    <!-- Received By -->
+                    <div class="form-group">
+                        <label for="incomeMethod">Received By</label>
+                        <select id="incomeMethod" name="method">
+                            <option value="">Select method</option>
+                            <option value="cash">💵 Cash</option>
+                            <option value="bank">🏦 Bank Transfer</option>
+                            <option value="upi">📱 UPI</option>
+                            <option value="check">✓ Check</option>
+                            <option value="card">💳 Card</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Field -->
+                    <div class="form-group">
+                        <label for="incomeDate">Date *</label>
+                        <input type="date" id="incomeDate" name="date" required>
+                        <span class="helper-text">When did you receive income</span>
+                    </div>
+
+                    <!-- Time Field -->
+                    <div class="form-group">
+                        <label for="incomeTime">Time</label>
+                        <input type="time" id="incomeTime" name="time">
+                        <span class="helper-text">Optional: Time received</span>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group full-width">
+                        <label for="incomeDescription">Description *</label>
+                        <textarea id="incomeDescription" name="description" placeholder="Details about income source..." rows="3" required></textarea>
+                        <span class="helper-text">What was this income for?</span>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="form-group full-width">
+                        <label for="incomeTags">Tags</label>
+                        <div class="tag-input">
+                            <input type="text" id="incomeTags" placeholder="e.g., monthly, project, bonus (press Enter to add)">
+                            <div class="tag-list"></div>
+                        </div>
+                        <span class="helper-text">Add tags to organize income</span>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions full-width">
+                        <button type="reset" class="btn btn-secondary">Clear</button>
+                        <button type="submit" class="btn btn-primary">Add Income</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Recent Entries -->
+        <div class="recent-entries">
+            <h2>Recent Manual Entries</h2>
+            <div class="entries-list" id="entriesList">
+                <div class="no-entries">
+                    <p>📝 No manual entries yet. Add your first transaction above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Personal Finance Platform. All rights reserved.</p>
+    </footer>
+
+    <script src="../scripts/manual-entry.js"></script>
+</body>
+</html>

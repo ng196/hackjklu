@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses - Personal Finance</title>
+    <link rel="stylesheet" href="../styles/expenses.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">💰 FinPro</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="expenses.html" class="nav-link active">Expenses</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Expense Tracker</h1>
+            <p class="subtitle">Track your spending across different time periods</p>
+        </div>
+
+        <!-- Time Period Tabs -->
+        <div class="period-tabs">
+            <button class="period-btn active" data-period="today">
+                <span class="tab-icon">📅</span>
+                <span class="tab-label">Today</span>
+            </button>
+            <button class="period-btn" data-period="weekly">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Weekly</span>
+            </button>
+            <button class="period-btn" data-period="monthly">
+                <span class="tab-icon">📈</span>
+                <span class="tab-label">Monthly</span>
+            </button>
+            <button class="period-btn" data-period="yearly">
+                <span class="tab-icon">📉</span>
+                <span class="tab-label">Yearly</span>
+            </button>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-container">
+            <div class="stat-box">
+                <span class="stat-label">Total Expenses</span>
+                <span class="stat-value" id="totalExpense">₹2,450.00</span>
+                <span class="stat-change negative">↑ From last period</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Average Daily</span>
+                <span class="stat-value" id="avgDaily">₹816.67</span>
+                <span class="stat-change">Per day</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Highest Category</span>
+                <span class="stat-value" id="highestCat">Housing</span>
+                <span class="stat-change">₹1,200.00</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Budget Status</span>
+                <span class="stat-value" id="budgetStatus">78%</span>
+                <span class="stat-change positive">Under budget</span>
+            </div>
+        </div>
+
+        <!-- Main Chart -->
+        <div class="chart-container">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2>Expenses Overview</h2>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #3b82f6;"></span>
+                            <span>Food & Dining</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ef4444;"></span>
+                            <span>Transportation</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #fbbf24;"></span>
+                            <span>Entertainment</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #a78bfa;"></span>
+                            <span>Utilities</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #14b8a6;"></span>
+                            <span>Shopping</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #c084fc;"></span>
+                            <span>Other</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="breakdown-container">
+            <h2>Category Breakdown</h2>
+            <div class="category-grid">
+                <div class="category-card">
+                    <div class="category-header">
+                        <span class="category-icon">🍔</span>
+                        <span class="category-name">Food & Dining</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="progress-fill" style="width: 30%; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);"></div>
+                    </div>
+                    <div class="category-footer">
+                        <span class="category-percent">30%</span>
+                        <span class="category-amount">₹735.00</span>
+                    </div>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <span class="category-icon">🚗</span>
+                        <span class="category-name">Transportation</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="progress-fill" style="width: 20%; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"></div>
+                    </div>
+                    <div class="category-footer">
+                        <span class="category-percent">20%</span>
+                        <span class="category-amount">₹490.00</span>
+                    </div>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <span class="category-icon">🎬</span>
+                        <span class="category-name">Entertainment</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="progress-fill" style="width: 15%; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);"></div>
+                    </div>
+                    <div class="category-footer">
+                        <span class="category-percent">15%</span>
+                        <span class="category-amount">₹367.50</span>
+                    </div>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <span class="category-icon">⚡</span>
+                        <span class="category-name">Utilities</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="progress-fill" style="width: 14%; background: linear-gradient(135deg, #a78bfa 0%, #9333ea 100%);"></div>
+                    </div>
+                    <div class="category-footer">
+                        <span class="category-percent">14%</span>
+                        <span class="category-amount">₹343.00</span>
+                    </div>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <span class="category-icon">🛍️</span>
+                        <span class="category-name">Shopping</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="progress-fill" style="width: 12%; background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);"></div>
+                    </div>
+                    <div class="category-footer">
+                        <span class="category-percent">12%</span>
+                        <span class="category-amount">₹294.00</span>
+                    </div>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <span class="category-icon">📦</span>
+                        <span class="category-name">Other</span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="progress-fill" style="width: 9%; background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);"></div>
+                    </div>
+                    <div class="category-footer">
+                        <span class="category-percent">9%</span>
+                        <span class="category-amount">₹220.50</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Expense Details -->
+        <div class="details-container">
+            <h2>Daily Breakdown</h2>
+            <div class="daily-list">
+                <div class="daily-item">
+                    <div class="daily-date">
+                        <span class="date-day">Monday</span>
+                        <span class="date-amount">₹450</span>
+                    </div>
+                    <div class="daily-bar">
+                        <div class="daily-fill" style="width: 45%;"></div>
+                    </div>
+                </div>
+                <div class="daily-item">
+                    <div class="daily-date">
+                        <span class="date-day">Tuesday</span>
+                        <span class="date-amount">₹320</span>
+                    </div>
+                    <div class="daily-bar">
+                        <div class="daily-fill" style="width: 32%;"></div>
+                    </div>
+                </div>
+                <div class="daily-item">
+                    <div class="daily-date">
+                        <span class="date-day">Wednesday</span>
+                        <span class="date-amount">₹580</span>
+                    </div>
+                    <div class="daily-bar">
+                        <div class="daily-fill" style="width: 58%;"></div>
+                    </div>
+                </div>
+                <div class="daily-item">
+                    <div class="daily-date">
+                        <span class="date-day">Thursday</span>
+                        <span class="date-amount">₹380</span>
+                    </div>
+                    <div class="daily-bar">
+                        <div class="daily-fill" style="width: 38%;"></div>
+                    </div>
+                </div>
+                <div class="daily-item">
+                    <div class="daily-date">
+                        <span class="date-day">Friday</span>
+                        <span class="date-amount">₹720</span>
+                    </div>
+                    <div class="daily-bar">
+                        <div class="daily-fill" style="width: 72%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 Personal Finance Platform. All rights reserved.</p>
+    </footer>
+
+    <script src="../scripts/expenses.js"></script>
+</body>
+</html>
