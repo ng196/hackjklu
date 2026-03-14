@@ -1,0 +1,48 @@
+{
+  "landing": {
+    "headline": "Plan money with confidence",
+    "subtext": "Your onboarding is complete. Explore your guided intro or jump directly into accounts to start building a live financial picture.",
+    "stats": [
+      {
+        "title": "Cashflow Snapshot",
+        "value": "INR 18,400",
+        "tone": "text-emerald-700"
+      },
+      {
+        "title": "Active Accounts",
+        "value": "4 linked",
+        "tone": "text-teal-700"
+      },
+      {
+        "title": "Goals Progress",
+        "value": "62% complete",
+        "tone": "text-cyan-700"
+      }
+    ]
+  },
+  "accounts": {
+    "list": [
+      {
+        "id": "acc_1",
+        "name": "HDFC Salary Account",
+        "type": "bank",
+        "balance": 84500,
+        "institution": "HDFC Bank"
+      },
+      {
+        "id": "acc_2",
+        "name": "ICICI Credit Card",
+        "type": "credit_card",
+        "balance": -12450,
+        "institution": "ICICI Bank"
+      },
+      {
+        "id": "acc_3",
+        "name": "Emergency Cash Wallet",
+        "type": "cash",
+        "balance": 12000,
+        "institution": "Cash"
+      }
+    ]
+  }
+}
