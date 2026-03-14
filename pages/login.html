@@ -260,6 +260,23 @@
             text-decoration: underline;
         }
 
+        /* BANK LINK INDICATOR */
+        .bank-link-indicator {
+            background-color: #F0F9FF;
+            border: 1px solid #BAE6FD;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #0369A1;
+            font-weight: 500;
+        }
+
+        .bank-link-indicator i {
+            margin-right: 0.5rem;
+        }
+
         /* ERROR MESSAGE */
         .error-message {
             background-color: #FEE2E2;
@@ -327,6 +344,12 @@
 
                 <div class="error-message" id="errorMessage"></div>
                 <div class="success-message" id="successMessage"></div>
+
+                <!-- Bank Link Indicator (shown if bank is linked) -->
+                <div class="bank-link-indicator" id="bankLinkIndicator" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="bankLinkText">Bank Account Linked</span>
+                </div>
 
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <!-- Email Input -->
@@ -397,6 +420,20 @@
     </div>
 
     <script>
+        // Check if user has bank linked on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                if (user.bankName) {
+                    const indicator = document.getElementById('bankLinkIndicator');
+                    const text = document.getElementById('bankLinkText');
+                    indicator.style.display = 'block';
+                    text.textContent = `🏦 ${user.bankName.toUpperCase()} Linked`;
+                }
+            }
+        });
+
         function handleLogin(event) {
             event.preventDefault();
             
@@ -433,9 +470,9 @@
                 loggedIn: true
             }));
 
-            // Redirect to dashboard after 1.5 seconds
+            // Redirect to app (dashboard) after 1.5 seconds
             setTimeout(() => {
-                window.location.href = '/pages/dashboard.html';
+                window.location.href = '../app.html';
             }, 1500);
         }
 
@@ -455,7 +492,7 @@
                         name: 'User',
                         loggedIn: true
                     }));
-                    window.location.href = '/pages/dashboard.html';
+                    window.location.href = '../app.html';
                 }, 1500);
             });
         });

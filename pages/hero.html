@@ -100,23 +100,62 @@
 
         .btn-login {
             background: transparent;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-light);
+            transition: left 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            z-index: -1;
         }
 
         .btn-login:hover {
             background: var(--primary-light);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(16, 185, 129, 0.2);
         }
 
         .btn-signup {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-signup::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
         }
 
         .btn-signup:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 10px 24px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-signup:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .menu-toggle {
@@ -126,6 +165,11 @@
             font-size: 24px;
             color: var(--text-dark);
             cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .menu-toggle:hover {
+            transform: rotate(90deg);
         }
 
         /* HERO SECTION */
@@ -143,6 +187,10 @@
             color: var(--text-dark);
             margin-bottom: 20px;
             line-height: 1.2;
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero p {
@@ -152,6 +200,7 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            transition: color 0.3s;
         }
 
         .hero-buttons {
@@ -164,20 +213,38 @@
 
         .btn-primary {
             padding: 14px 32px;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-weight: 600;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: left 0.5s;
         }
 
         .btn-primary:hover {
             background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
         }
 
         .btn-secondary {
@@ -248,9 +315,11 @@
             border-radius: 12px;
             padding: 40px 30px;
             text-align: center;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
         }
 
         .feature-card::before {
@@ -267,8 +336,8 @@
 
         .feature-card:hover {
             border-color: var(--primary-color);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2), var(--shadow-lg);
+            transform: translateY(-12px) rotateX(5deg) rotateY(-5deg);
         }
 
         .feature-card:hover::before {
@@ -381,7 +450,8 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
-            animation: fadeIn 0.3s;
+            animation: fadeIn 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            backdrop-filter: blur(2px);
         }
 
         .modal.active {
@@ -407,31 +477,42 @@
         }
 
         .modal-content {
-            background-color: var(--bg-white);
+            background: linear-gradient(135deg, var(--bg-white) 0%, rgba(16, 185, 129, 0.02) 100%);
             padding: 40px;
             border-radius: 12px;
             width: 90%;
             max-width: 450px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             position: relative;
-            animation: slideUp 0.3s;
+            animation: slideUp 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            border: 1px solid rgba(16, 185, 129, 0.08);
+            transform-style: preserve-3d;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
         }
 
         .modal-close {
             position: absolute;
             right: 20px;
             top: 20px;
-            background: none;
+            background: rgba(16, 185, 129, 0.05);
             border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
             font-size: 24px;
             color: var(--text-light);
             cursor: pointer;
-            transition: color 0.3s;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
             z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-close:hover {
-            color: var(--text-dark);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--primary);
+            transform: rotate(90deg) scale(1.1);
         }
 
         .modal h2 {
@@ -439,12 +520,17 @@
             font-weight: 700;
             margin-bottom: 8px;
             color: var(--text-dark);
+            background: linear-gradient(135deg, var(--text-dark) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .modal-subtitle {
             font-size: 14px;
             color: var(--text-light);
             margin-bottom: 30px;
+            transition: color 0.3s;
         }
 
         .form-group {
@@ -457,27 +543,32 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: var(--text-dark);
+            transition: all 0.3s;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
             padding: 12px 16px;
-            border: 1px solid #E5E7EB;
-            border-radius: 6px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            background: rgba(16, 185, 129, 0.02);
+            transform-style: preserve-3d;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+            background: var(--bg-white);
+            transform: translateY(-2px);
         }
 
         .form-group input::placeholder {
-            color: #D1D5DB;
+            color: rgba(107, 114, 128, 0.6);
         }
 
         .error-message {
@@ -485,6 +576,12 @@
             font-size: 12px;
             color: #EF4444;
             margin-top: 6px;
+            animation: slideDown 0.2s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .error-message.show {
@@ -496,11 +593,16 @@
             align-items: center;
             gap: 8px;
             margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(16, 185, 129, 0.02);
+            transition: all 0.3s;
         }
 
         .checkbox-group input[type="checkbox"] {
             width: auto;
             cursor: pointer;
+            accent-color: var(--primary);
         }
 
         .checkbox-group label {
@@ -1017,42 +1119,31 @@
     </div>
 
     <script>
-        // QUICK LOGIN - Direct login without modal
+        // QUICK LOGIN - Direct to login page
         function quickLogin() {
-            const userData = {
-                email: 'user@example.com',
-                fullName: 'Demo User',
-                loginTime: new Date().toLocaleString(),
-                rememberMe: true
-            };
-            localStorage.setItem('currentUser', JSON.stringify(userData));
-            window.location.href = 'dashboard.html';
+            window.location.href = './login.html';
         }
 
         // MODAL FUNCTIONS
         function showLoginModal() {
-            document.getElementById('loginModal').classList.add('active');
-            document.getElementById('signupModal').classList.remove('active');
+            window.location.href = './login.html';
         }
 
         function showSignupModal() {
-            document.getElementById('signupModal').classList.add('active');
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('signupStep1').classList.remove('hidden');
-            document.getElementById('signupStep2').classList.add('hidden');
+            window.location.href = './signup.html';
         }
 
         function closeModals() {
-            document.getElementById('loginModal').classList.remove('active');
-            document.getElementById('signupModal').classList.remove('active');
+            // Modals are now navigating directly, this can be kept empty
+            return;
         }
 
         function switchToLogin() {
-            showLoginModal();
+            window.location.href = './login.html';
         }
 
         function switchToSignup() {
-            showSignupModal();
+            window.location.href = './signup.html';
         }
 
         // CLOSE MODALS ON OVERLAY CLICK
@@ -1102,7 +1193,7 @@
             localStorage.setItem('currentUser', JSON.stringify(userData));
             // Redirect to dashboard
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = './dashboard.html';
             }, 500);
         }
 
@@ -1158,7 +1249,7 @@
 
             document.getElementById('successMessage').classList.add('show');
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = './dashboard.html';
             }, 1000);
         }
 
