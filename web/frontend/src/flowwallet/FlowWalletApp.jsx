@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -20,6 +20,7 @@ import {
   Target,
   Wallet,
 } from "lucide-react";
+import { getDashboardContext, listUsers, seedDemoUsers } from "../services/backendApi";
 
 const banks = ["Axis Bank", "HDFC Bank", "SBI", "ICICI", "Kotak", "Yes Bank", "IndusInd", "IDFC First"];
 
@@ -263,20 +264,135 @@ function OnboardingGoals() {
 }
 
 function NorthHome() {
+  const [users, setUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [context, setContext] = useState(null);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingContext, setLoadingContext] = useState(false);
+  const [seedLoading, setSeedLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const formatCurrency = (value) => {
+    const amount = Number(value || 0);
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    setError("");
+
+    try {
+      const response = await listUsers();
+      const rows = response.users || [];
+      setUsers(rows);
+      if (rows.length > 0) {
+        setSelectedUserId((prev) => prev || rows[0].id);
+      }
+    } catch (err) {
+      setError(err.message || "Unable to fetch users");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleSeedUsers = async () => {
+    setSeedLoading(true);
+    setError("");
+
+    try {
+      await seedDemoUsers(true);
+      await loadUsers();
+    } catch (err) {
+      setError(err.message || "Unable to seed demo users");
+    } finally {
+      setSeedLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      setContext(null);
+      return;
+    }
+
+    const fetchContext = async () => {
+      setLoadingContext(true);
+      setError("");
+      try {
+        const payload = await getDashboardContext(selectedUserId);
+        setContext(payload);
+      } catch (err) {
+        setError(err.message || "Unable to fetch dashboard context");
+      } finally {
+        setLoadingContext(false);
+      }
+    };
+
+    fetchContext();
+  }, [selectedUserId]);
+
+  const inferred = context?.inferred?.insights || null;
+  const recentTransactions = context?.recentTransactions || [];
+  const topMerchants = inferred?.topMerchants || [];
+
+  const lifetimeNet = inferred?.totals?.lifetimeNet || 0;
+  const last30Net = inferred?.last30Days?.net || 0;
+  const txnCount = inferred?.metadata?.txnCount || 0;
+
   return (
     <Container title="North" subtitle="Your daily money command center">
       <article className="rounded-3xl bg-gradient-to-br from-teal-500 to-cyan-500 p-5 text-white">
-        <p className="text-xs uppercase tracking-wide text-teal-100">Total Balance</p>
-        <p className="mt-1 text-4xl font-black">INR 86,940.20</p>
-        <p className="mt-2 text-xs text-teal-100">Auto-refreshed just now</p>
+        <p className="text-xs uppercase tracking-wide text-teal-100">Data Source</p>
+        <p className="mt-1 text-lg font-bold">Backend transactional + inferred context</p>
+        <p className="mt-2 text-xs text-teal-100">Live from PostgreSQL via API</p>
+      </article>
+
+      <article className="mt-3 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="text-xs font-bold uppercase tracking-wide text-slate-500">User</label>
+          <select
+            value={selectedUserId}
+            onChange={(event) => setSelectedUserId(event.target.value)}
+            className="min-w-[180px] rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            disabled={loadingUsers || users.length === 0}
+          >
+            {users.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.full_name} ({user.mobile})
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleSeedUsers}
+            disabled={seedLoading}
+            className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white disabled:opacity-60"
+          >
+            {seedLoading ? "Generating..." : "Generate Demo Users"}
+          </button>
+        </div>
+
+        {loadingUsers ? <p className="mt-3 text-xs text-slate-500">Loading users...</p> : null}
+        {!loadingUsers && users.length === 0 ? (
+          <p className="mt-3 text-xs text-amber-700">No users found. Click Generate Demo Users to create sample transactional data.</p>
+        ) : null}
+        {error ? <p className="mt-3 text-xs text-rose-600">{error}</p> : null}
       </article>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         {[
-          ["Savings", "INR 24,000"],
-          ["Salary", "INR 38,420"],
-          ["Credit", "INR -11,900"],
-          ["Wallet", "INR 1,220"],
+          ["Lifetime Net", formatCurrency(lifetimeNet)],
+          ["Last 30D Net", formatCurrency(last30Net)],
+          ["Transactions", String(txnCount)],
+          ["Accounts", String(context?.accounts?.length || 0)],
         ].map(([name, value]) => (
           <article key={name} className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
             <p className="text-xs text-slate-500">{name}</p>
@@ -286,19 +402,60 @@ function NorthHome() {
       </div>
 
       <article className="mt-3 rounded-xl bg-white p-4 ring-1 ring-slate-200">
-        <p className="text-xs text-slate-500">Monthly summary</p>
+        <p className="text-xs text-slate-500">Inferred monthly summary (last 30 days)</p>
         <div className="mt-2 flex justify-between text-sm">
-          <span>Spent this month</span>
-          <span className="font-bold text-rose-600">INR 18,200</span>
+          <span>Credits</span>
+          <span className="font-bold text-emerald-700">{formatCurrency(inferred?.last30Days?.credit || 0)}</span>
         </div>
         <div className="mt-1 flex justify-between text-sm">
-          <span>Left to budget</span>
-          <span className="font-bold text-teal-700">INR 11,800</span>
+          <span>Debits</span>
+          <span className="font-bold text-rose-600">{formatCurrency(inferred?.last30Days?.debit || 0)}</span>
+        </div>
+      </article>
+
+      <article className="mt-3 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+        <p className="text-sm font-bold text-slate-900">Top merchants (inferred)</p>
+        <div className="mt-2 space-y-2">
+          {topMerchants.length === 0 ? (
+            <p className="text-xs text-slate-500">No merchant insights available yet.</p>
+          ) : (
+            topMerchants.map((item) => (
+              <div key={item.merchant} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                <span className="font-semibold text-slate-700">{item.merchant}</span>
+                <span className="font-bold text-slate-900">{formatCurrency(item.spend)}</span>
+              </div>
+            ))
+          )}
+        </div>
+      </article>
+
+      <article className="mt-3 rounded-xl bg-white p-4 ring-1 ring-slate-200">
+        <p className="text-sm font-bold text-slate-900">Recent transactions (raw transactional info)</p>
+        {loadingContext ? <p className="mt-2 text-xs text-slate-500">Loading transactions...</p> : null}
+        <div className="mt-3 space-y-2">
+          {recentTransactions.slice(0, 10).map((tx) => (
+            <div key={tx.id} className="rounded-lg bg-slate-50 px-3 py-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold text-slate-800">{tx.merchant_name || tx.narration || "Transaction"}</span>
+                <span className={tx.txn_type === "CREDIT" ? "font-bold text-emerald-700" : "font-bold text-rose-600"}>
+                  {tx.txn_type === "CREDIT" ? "+" : "-"}
+                  {formatCurrency(tx.amount)}
+                </span>
+              </div>
+              <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500">
+                <span>{new Date(tx.txn_timestamp).toLocaleString()}</span>
+                <span>{tx.mode || "N/A"}</span>
+              </div>
+            </div>
+          ))}
+          {!loadingContext && recentTransactions.length === 0 ? (
+            <p className="text-xs text-slate-500">No transactions available for this user yet.</p>
+          ) : null}
         </div>
       </article>
 
       <button className="fixed bottom-24 left-1/2 z-20 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-slate-900 py-3 text-sm font-bold text-white shadow-lg">
-        Transfer
+        {loadingContext ? "Refreshing data..." : "Transfer"}
       </button>
     </Container>
   );

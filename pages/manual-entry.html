@@ -1,293 +1,495 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manual Entry - Personal Finance</title>
+    <title>Manual Entry - FinEducate</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/ai-helper.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: #f5f7fa; color: #1F2937; }
-        .back-nav { padding: 15px 20px; background: #10B981; }
-        .back-nav a { color: white; text-decoration: none; font-weight: 600; }
-        .back-nav a:hover { text-decoration: underline; }
-        .navbar { background: white; border-bottom: 1px solid #E5E7EB; padding: 12px 0; }
-        .navbar-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 20px; font-weight: 700; }
-        .nav-menu { list-style: none; display: flex; gap: 30px; }
-        .nav-link { text-decoration: none; color: #1F2937; font-weight: 500; transition: color 0.3s; }
-        .nav-link:hover, .nav-link.active { color: #10B981; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
-        .header { margin-bottom: 30px; }
-        .header h1 { font-size: 32px; font-weight: 700; }
-        .subtitle { color: #6B7280; }
-        .entry-tabs { display: flex; gap: 12px; margin-bottom: 30px; }
-        .entry-tab-btn { padding: 12px 24px; border: 1px solid #E5E7EB; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .entry-tab-btn.active { background: #10B981; color: white; border-color: #10B981; }
-        .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .entry-form { display: none; }
-        .entry-form.active { display: block; }
-        .form-grid { display: grid; gap: 20px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-weight: 600; margin-bottom: 8px; }
-        .form-group input, .form-group select { padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; transition: all 0.3s; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        .amount-input-group { display: flex; align-items: center; }
-        .currency { padding: 12px; background: #F3F4F6; border-radius: 6px 0 0 6px; }
-        .amount-input-group input { border-radius: 0 6px 6px 0; flex: 1; }
-        .full-width { grid-column: 1 / -1; }
-        .helper-text { font-size: 12px; color: #6B7280; margin-top: 4px; display: block; }
-        .tag-input { display: flex; flex-direction: column; gap: 8px; }
-        .tag-input input { padding: 12px; border: 1px solid #E5E7EB; border-radius: 6px; font-size: 14px; }
-        .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
-        .tag { background: #D1FAE5; color: #10B981; padding: 6px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
-        .tag button { background: none; border: none; color: #10B981; cursor: pointer; font-weight: bold; }
-        .file-upload { border: 2px dashed #E5E7EB; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; }
-        .file-upload:hover { border-color: #10B981; background: #F9FAFB; }
-        .file-upload input { display: none; }
-        .upload-text { color: #6B7280; font-size: 14px; }
-        .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
-        .btn { padding: 12px 24px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .btn-primary { background: #10B981; color: white; }
-        .btn-primary:hover { background: #059669; }
-        .btn-secondary { background: #E5E7EB; color: #1F2937; }
-        .btn-secondary:hover { background: #D1D5DB; }
-        .recent-entries { margin-top: 40px; }
-        .recent-entries h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
-        .entries-list { display: flex; flex-direction: column; gap: 12px; }
-        .entry-item { background: white; padding: 16px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
-        .entry-info { flex: 1; }
-        .entry-name { font-size: 14px; font-weight: 600; color: #1F2937; }
-        .entry-details { font-size: 12px; color: #6B7280; margin-top: 4px; }
-        .entry-amount { font-size: 14px; font-weight: 700; color: #10B981; }
-        .entry-amount.expense { color: #EF4444; }
-        .no-entries { background: white; padding: 40px; border-radius: 10px; text-align: center; color: #6B7280; }
-        .footer { background: white; border-top: 1px solid #E5E7EB; padding: 24px; text-align: center; color: #6B7280; font-size: 13px; margin-top: 40px; }
-        textarea { font-family: inherit; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f0f4f8;
+            color: #1F2937;
+        }
+
+        .back-nav {
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+
+        .page-header p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Tab Switcher */
+        .tab-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 6px;
+            border-radius: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            background: transparent;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0fdf4;
+            color: #059669;
+        }
+
+        /* Form */
+        .entry-form {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 28px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .submit-btn.expense-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .submit-btn.expense-btn:hover {
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Recent Entries */
+        .recent-section {
+            margin-top: 32px;
+        }
+
+        .recent-section h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+
+        .entry-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+
+        .entry-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .entry-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .entry-icon.food {
+            background: #fef3c7;
+        }
+
+        .entry-icon.shopping {
+            background: #fce7f3;
+        }
+
+        .entry-icon.transport {
+            background: #dbeafe;
+        }
+
+        .entry-icon.utilities {
+            background: #e0e7ff;
+        }
+
+        .entry-icon.income {
+            background: #d1fae5;
+        }
+
+        .entry-icon.salary {
+            background: #d1fae5;
+        }
+
+        .entry-icon.freelance {
+            background: #d1fae5;
+        }
+
+        .entry-icon.other {
+            background: #f3f4f6;
+        }
+
+        .entry-info {
+            flex: 1;
+        }
+
+        .entry-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .entry-meta {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .entry-amount {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .entry-amount.expense {
+            color: #ef4444;
+        }
+
+        .entry-amount.income {
+            color: #10B981;
+        }
+
+        .entry-source {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .entry-source.ai {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .entry-source.manual {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div style="padding: 15px 20px; background: #10B981;"><a href="../app.html" style="color: white; text-decoration: none; font-weight: 600;">← Back to Dashboard</a></div>
+    <div class="back-nav">
+        <a href="../app.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <span style="color:white;font-weight:700;font-size:18px;">Manual Entry</span>
+        <div style="width:100px"></div>
+    </div>
 
     <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>Manual Transaction Entry</h1>
-            <p class="subtitle">Add transactions that cannot be automatically detected</p>
+        <div class="page-header">
+            <h1>📝 Manual Entry</h1>
+            <p>Add expenses and income manually, or use the AI helper <span style="color:#10B981">(top-right
+                    icon)</span></p>
         </div>
 
-        <!-- Entry Type Tabs -->
-        <div class="entry-tabs">
-            <button class="entry-tab-btn active" data-type="expense">
-                <span class="tab-icon">💸</span>
-                <span>Add Expense</span>
-            </button>
-            <button class="entry-tab-btn" data-type="income">
-                <span class="tab-icon">💰</span>
-                <span>Add Income</span>
-            </button>
+        <!-- Tab Switcher -->
+        <div class="tab-switcher">
+            <button class="tab-btn active" id="tabExpense" onclick="switchTab('expense')"><i
+                    class="fas fa-minus-circle"></i> Expense</button>
+            <button class="tab-btn" id="tabIncome" onclick="switchTab('income')"><i class="fas fa-plus-circle"></i>
+                Income</button>
         </div>
 
-        <!-- Main Form Container -->
-        <div class="form-container">
-            <!-- Expense Form -->
-            <form id="expenseForm" class="entry-form active">
-                <div class="form-grid">
-                    <!-- Amount Field -->
-                    <div class="form-group full-width">
-                        <label for="expenseAmount">Amount *</label>
-                        <div class="amount-input-group">
-                            <span class="currency">₹</span>
-                            <input type="number" id="expenseAmount" name="amount" placeholder="0.00" step="0.01" required>
-                        </div>
-                        <span class="helper-text">Enter the expense amount</span>
-                    </div>
-
-                    <!-- Category Field -->
+        <!-- Entry Form -->
+        <div class="entry-form">
+            <form id="entryForm" onsubmit="submitEntry(event)">
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="expenseCategory">Category *</label>
-                        <select id="expenseCategory" name="category" required>
-                            <option value="">Select a category</option>
-                            <option value="food">🍔 Food & Dining</option>
-                            <option value="transport">🚗 Transportation</option>
-                            <option value="entertainment">🎬 Entertainment</option>
-                            <option value="utilities">⚡ Utilities</option>
-                            <option value="shopping">🛍️ Shopping</option>
-                            <option value="health">🏥 Health & Medicine</option>
-                            <option value="education">📚 Education</option>
-                            <option value="personal">💄 Personal Care</option>
-                            <option value="home">🏠 Home & Garden</option>
-                            <option value="other">📦 Other</option>
+                        <label>Amount (₹)</label>
+                        <input type="number" id="entryAmount" placeholder="0" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="entryCategory" required>
+                            <option value="">Select category...</option>
                         </select>
-                    </div>
-
-                    <!-- Payment Method -->
-                    <div class="form-group">
-                        <label for="expensePayment">Payment Method *</label>
-                        <select id="expensePayment" name="paymentMethod" required>
-                            <option value="">Select payment method</option>
-                            <option value="cash">💵 Cash</option>
-                            <option value="credit">💳 Credit Card</option>
-                            <option value="debit">🏧 Debit Card</option>
-                            <option value="upi">📱 UPI</option>
-                            <option value="bank">🏦 Bank Transfer</option>
-                            <option value="wallet">👜 Digital Wallet</option>
-                        </select>
-                    </div>
-
-                    <!-- Date Field -->
-                    <div class="form-group">
-                        <label for="expenseDate">Date *</label>
-                        <input type="date" id="expenseDate" name="date" required>
-                        <span class="helper-text">Pick the expense date</span>
-                    </div>
-
-                    <!-- Time Field -->
-                    <div class="form-group">
-                        <label for="expenseTime">Time</label>
-                        <input type="time" id="expenseTime" name="time">
-                        <span class="helper-text">Optional: Transaction time</span>
-                    </div>
-
-                    <!-- Merchant/Vendor -->
-                    <div class="form-group">
-                        <label for="expenseMerchant">Merchant/Vendor</label>
-                        <input type="text" id="expenseMerchant" name="merchant" placeholder="e.g., Starbucks, Amazon, etc.">
-                        <span class="helper-text">Where the expense was made</span>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="form-group full-width">
-                        <label for="expenseDescription">Description *</label>
-                        <textarea id="expenseDescription" name="description" placeholder="Add details about this transaction..." rows="3" required></textarea>
-                        <span class="helper-text">What did you spend on? Be specific.</span>
-                    </div>
-
-                    <!-- Tags -->
-                    <div class="form-group full-width">
-                        <label for="expenseTags">Tags</label>
-                        <div class="tag-input">
-                            <input type="text" id="expenseTags" placeholder="e.g., recurring, bills, travel (press Enter to add)">
-                            <div class="tag-list"></div>
-                        </div>
-                        <span class="helper-text">Add tags to organize expenses</span>
-                    </div>
-
-                    <!-- Receipt Upload -->
-                    <div class="form-group full-width">
-                        <label for="expenseReceipt">Receipt/Proof</label>
-                        <div class="file-upload">
-                            <input type="file" id="expenseReceipt" name="receipt" accept="image/*,.pdf">
-                            <span class="upload-text">📎 Click to upload receipt or drag & drop</span>
-                        </div>
-                        <span class="helper-text">Upload receipt image or PDF (optional)</span>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="form-actions full-width">
-                        <button type="reset" class="btn btn-secondary">Clear</button>
-                        <button type="submit" class="btn btn-primary">Add Expense</button>
                     </div>
                 </div>
-            </form>
-
-            <!-- Income Form -->
-            <form id="incomeForm" class="entry-form">
-                <div class="form-grid">
-                    <!-- Amount Field -->
-                    <div class="form-group full-width">
-                        <label for="incomeAmount">Amount *</label>
-                        <div class="amount-input-group">
-                            <span class="currency">₹</span>
-                            <input type="number" id="incomeAmount" name="amount" placeholder="0.00" step="0.01" required>
-                        </div>
-                        <span class="helper-text">Enter the income amount</span>
-                    </div>
-
-                    <!-- Source -->
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="entryDescription" placeholder="What was this for?">
+                </div>
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="incomeSource">Income Source *</label>
-                        <select id="incomeSource" name="source" required>
-                            <option value="">Select source</option>
-                            <option value="salary">💼 Salary</option>
-                            <option value="freelance">💻 Freelance</option>
-                            <option value="investment">📈 Investment</option>
-                            <option value="bonus">🎁 Bonus</option>
-                            <option value="refund">↩️ Refund</option>
-                            <option value="gift">🎉 Gift</option>
-                            <option value="other">📝 Other</option>
+                        <label>Date</label>
+                        <input type="date" id="entryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="entryPayment">
+                            <option value="upi">UPI</option>
+                            <option value="cash">Cash</option>
+                            <option value="credit">Credit Card</option>
+                            <option value="debit">Debit Card</option>
+                            <option value="bank">Bank Transfer</option>
+                            <option value="wallet">Wallet</option>
                         </select>
-                    </div>
-
-                    <!-- Received By -->
-                    <div class="form-group">
-                        <label for="incomeMethod">Received By</label>
-                        <select id="incomeMethod" name="method">
-                            <option value="">Select method</option>
-                            <option value="cash">💵 Cash</option>
-                            <option value="bank">🏦 Bank Transfer</option>
-                            <option value="upi">📱 UPI</option>
-                            <option value="check">✓ Check</option>
-                            <option value="card">💳 Card</option>
-                        </select>
-                    </div>
-
-                    <!-- Date Field -->
-                    <div class="form-group">
-                        <label for="incomeDate">Date *</label>
-                        <input type="date" id="incomeDate" name="date" required>
-                        <span class="helper-text">When did you receive income</span>
-                    </div>
-
-                    <!-- Time Field -->
-                    <div class="form-group">
-                        <label for="incomeTime">Time</label>
-                        <input type="time" id="incomeTime" name="time">
-                        <span class="helper-text">Optional: Time received</span>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="form-group full-width">
-                        <label for="incomeDescription">Description *</label>
-                        <textarea id="incomeDescription" name="description" placeholder="Details about income source..." rows="3" required></textarea>
-                        <span class="helper-text">What was this income for?</span>
-                    </div>
-
-                    <!-- Tags -->
-                    <div class="form-group full-width">
-                        <label for="incomeTags">Tags</label>
-                        <div class="tag-input">
-                            <input type="text" id="incomeTags" placeholder="e.g., monthly, project, bonus (press Enter to add)">
-                            <div class="tag-list"></div>
-                        </div>
-                        <span class="helper-text">Add tags to organize income</span>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="form-actions full-width">
-                        <button type="reset" class="btn btn-secondary">Clear</button>
-                        <button type="submit" class="btn btn-primary">Add Income</button>
                     </div>
                 </div>
+                <button type="submit" class="submit-btn expense-btn" id="submitBtn"><i class="fas fa-plus"></i> Add
+                    Expense</button>
             </form>
         </div>
 
         <!-- Recent Entries -->
-        <div class="recent-entries">
-            <h2>Recent Manual Entries</h2>
-            <div class="entries-list" id="entriesList">
-                <div class="no-entries">
-                    <p>📝 No manual entries yet. Add your first transaction above!</p>
-                </div>
-            </div>
+        <div class="recent-section">
+            <h2>📋 Recent Entries</h2>
+            <div id="recentEntries"></div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2024 Personal Finance Platform. All rights reserved.</p>
-    </footer>
+    <script src="../scripts/ai-actions.js"></script>
+    <script src="../scripts/ai-form-helper.js"></script>
+    <script>
+        let currentTab = 'expense';
+        const expenseCategories = ['food', 'shopping', 'transport', 'utilities', 'entertainment', 'health', 'education', 'rent', 'other'];
+        const incomeCategories = ['salary', 'freelance', 'investment', 'business', 'rental', 'gift', 'other'];
+        const categoryIcons = { food: '🍔', shopping: '🛍️', transport: '🚗', utilities: '⚡', entertainment: '🎬', health: '🏥', education: '📚', salary: '💼', freelance: '💻', investment: '📈', business: '💼', rental: '🏠', gift: '🎁', rent: '🏠', other: '📦' };
 
-    <script src="../scripts/manual-entry.js"></script>
+        function formatINR(n) { return '₹' + Math.round(n).toLocaleString('en-IN'); }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabExpense').classList.toggle('active', tab === 'expense');
+            document.getElementById('tabIncome').classList.toggle('active', tab === 'income');
+
+            const btn = document.getElementById('submitBtn');
+            btn.className = tab === 'expense' ? 'submit-btn expense-btn' : 'submit-btn';
+            btn.innerHTML = tab === 'expense' ? '<i class="fas fa-minus-circle"></i> Add Expense' : '<i class="fas fa-plus-circle"></i> Add Income';
+
+            // Update category options
+            const cats = tab === 'expense' ? expenseCategories : incomeCategories;
+            const select = document.getElementById('entryCategory');
+            select.innerHTML = '<option value="">Select category...</option>' + cats.map(c => `<option value="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('');
+        }
+
+        function submitEntry(event) {
+            event.preventDefault();
+            const amount = parseFloat(document.getElementById('entryAmount').value);
+            const category = document.getElementById('entryCategory').value;
+            const description = document.getElementById('entryDescription').value.trim();
+            const date = document.getElementById('entryDate').value;
+            const paymentMethod = document.getElementById('entryPayment').value;
+
+            if (!amount || !category || !date) { alert('Please fill in all required fields.'); return; }
+
+            const transactions = JSON.parse(localStorage.getItem('fw_transactions') || '[]');
+            transactions.push({
+                id: 'txn_' + Date.now(),
+                type: currentTab,
+                amount,
+                category,
+                description: description || category,
+                date,
+                paymentMethod,
+                createdAt: new Date().toISOString(),
+                source: 'manual'
+            });
+            localStorage.setItem('fw_transactions', JSON.stringify(transactions));
+
+            // Reset form
+            document.getElementById('entryForm').reset();
+            document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+
+            // Show success
+            const btn = document.getElementById('submitBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            btn.style.background = '#22c55e';
+            setTimeout(() => { btn.innerHTML = originalHTML; btn.style.background = ''; }, 1500);
+
+            renderEntries();
+        }
+
+        function renderEntries() {
+            const transactions = JSON.parse(localStorage.getItem('fw_transactions') || '[]');
+            const sorted = [...transactions].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+            const recent = sorted.slice(0, 15);
+
+            const container = document.getElementById('recentEntries');
+            if (recent.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📝</div><p>No entries yet. Add one above!</p></div>';
+                return;
+            }
+
+            container.innerHTML = recent.map(t => `
+                <div class="entry-item">
+                    <div class="entry-icon ${t.category}">${categoryIcons[t.category] || '📦'}</div>
+                    <div class="entry-info">
+                        <div class="entry-name">${t.description || t.category}${t.source === 'ai' ? '<span class="entry-source ai">AI</span>' : '<span class="entry-source manual">Manual</span>'}</div>
+                        <div class="entry-meta">${t.category} • ${t.paymentMethod || 'cash'} • ${new Date(t.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</div>
+                    </div>
+                    <div class="entry-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${formatINR(t.amount)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Set default date
+        document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+        switchTab('expense');
+        renderEntries();
+        window.addEventListener('fw-data-changed', renderEntries);
+
+        // Initialize AI Form Helper
+        initAIFormHelper('manual-entry');
+    </script>
 </body>
+
 </html>

@@ -1,7 +1,7 @@
-import FlowWalletApp from "./flowwallet/FlowWalletApp";
+import Setup from "./flowwallet/setup";
 
 function App() {
-  return <FlowWalletApp />;
+  return <Setup />;
 }
 
 export default App;

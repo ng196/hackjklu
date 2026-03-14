@@ -16,7 +16,16 @@ const PORT = Number(process.env.PORT || 5000);
 const MAX_DEPOSIT_ACCOUNTS = 3;
 const MAX_CREDIT_CARD_ACCOUNTS = 4;
 
-app.use(cors());
+app.use(
+	cors({
+		origin: '*',
+		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization', 'TXN'],
+		exposedHeaders: ['Content-Type'],
+		credentials: false,
+		maxAge: 86400
+	})
+);
 app.use(express.json());
 
 const memoryUsers = DEMO_USER_PROFILES.map((profile, idx) => ({
