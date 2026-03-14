@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - FinEducate</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../styles/chatbot.css">
     <style>
         * {
             margin: 0;
@@ -261,6 +260,23 @@
             text-decoration: underline;
         }
 
+        /* BANK LINK INDICATOR */
+        .bank-link-indicator {
+            background-color: #F0F9FF;
+            border: 1px solid #BAE6FD;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #0369A1;
+            font-weight: 500;
+        }
+
+        .bank-link-indicator i {
+            margin-right: 0.5rem;
+        }
+
         /* ERROR MESSAGE */
         .error-message {
             background-color: #FEE2E2;
@@ -328,6 +344,12 @@
 
                 <div class="error-message" id="errorMessage"></div>
                 <div class="success-message" id="successMessage"></div>
+
+                <!-- Bank Link Indicator (shown if bank is linked) -->
+                <div class="bank-link-indicator" id="bankLinkIndicator" style="display: none;">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="bankLinkText">Bank Account Linked</span>
+                </div>
 
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <!-- Email Input -->
@@ -398,45 +420,39 @@
     </div>
 
     <script>
+        // Check if user has bank linked on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                if (user.bankName) {
+                    const indicator = document.getElementById('bankLinkIndicator');
+                    const text = document.getElementById('bankLinkText');
+                    indicator.style.display = 'block';
+                    text.textContent = `🏦 ${user.bankName.toUpperCase()} Linked`;
+                }
+            }
+        });
+
         function handleLogin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMessage');
+            // Temporarily allow login without validation
             const successMsg = document.getElementById('successMessage');
 
-            // Reset messages
-            errorMsg.classList.remove('show');
-            successMsg.classList.remove('show');
-
-            // Basic validation
-            if (!email || !password) {
-                errorMsg.textContent = 'Please fill in all fields';
-                errorMsg.classList.add('show');
-                return;
-            }
-
-            if (password.length < 6) {
-                errorMsg.textContent = 'Password must be at least 6 characters';
-                errorMsg.classList.add('show');
-                return;
-            }
-
-            // Simulate login (dummy)
             successMsg.textContent = '✓ Login successful! Redirecting...';
             successMsg.classList.add('show');
 
             // Store dummy user data in localStorage
             localStorage.setItem('userData', JSON.stringify({
-                email: email,
-                name: email.split('@')[0],
+                email: 'user@example.com',
+                name: 'Demo User',
                 loggedIn: true
             }));
 
-            // Redirect to dashboard after 1.5 seconds
+            // Redirect to app (dashboard) after 1.5 seconds
             setTimeout(() => {
-                window.location.href = '/pages/dashboard.html';
+                window.location.href = '../app.html';
             }, 1500);
         }
 
@@ -456,7 +472,7 @@
                         name: 'User',
                         loggedIn: true
                     }));
-                    window.location.href = '/pages/dashboard.html';
+                    window.location.href = '../app.html';
                 }, 1500);
             });
         });
@@ -467,7 +483,6 @@
             passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
         };
     </script>
-    <script src="../scripts/chatbot.js"></script>
 
 </body>
 </html>

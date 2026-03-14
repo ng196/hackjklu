@@ -1,180 +1,376 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { v4 as uuidv4 } from 'uuid';
-import OpenAI from 'openai';
+import { randomUUID } from 'crypto';
+import {
+	DEFAULT_FI_TYPES,
+	DEMO_USER_PROFILES,
+	ensureSeededDemoUser,
+	getUserDashboardContext,
+	listUsers
+} from './data/demoDataService.js';
 import { generateFIData } from './mockDataGenerator.js';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5000);
+const MAX_DEPOSIT_ACCOUNTS = 3;
+const MAX_CREDIT_CARD_ACCOUNTS = 4;
 
 app.use(cors());
 app.use(express.json());
 
-// In-memory store for simulation consistency
-const userSessionStore = {};
+const memoryUsers = DEMO_USER_PROFILES.map((profile, idx) => ({
+	id: `demo-${idx + 1}`,
+	full_name: profile.name,
+	pan: profile.pan,
+	mobile: profile.mobile,
+	email: profile.email,
+	fi_types: profile.fiTypes || DEFAULT_FI_TYPES,
+	created_at: new Date().toISOString(),
+	updated_at: new Date().toISOString()
+}));
+const memoryContexts = new Map();
 
-// Initialize OpenAI client for chatbot
-const openai = new OpenAI({
-  apiKey: process.env.ZAI_API_KEY || "86f90fe16ae34556b84f61f69bfc772c.bDA0Er5ScuCqbpEq",
-  baseURL: 'https://api.z.ai/api/coding/paas/v4'
-});
+function toBoolHeader(value) {
+	if (typeof value !== 'string') {
+		return false;
+	}
+	return value.toLowerCase() === 'true';
+}
 
-// ---------------------------------------------------------
-// ACCOUNT AGGREGATOR ENDPOINTS
-// ---------------------------------------------------------
+async function findUserByIdentifier({ uid, mobile, email }) {
+	if (uid) {
+		const context = await getUserDashboardContext(uid);
+		if (context?.user) {
+			return context.user;
+		}
+		return null;
+	}
 
-// 1. CONSENT FLOW
-app.post('/consents', (req, res) => {
-    const consentId = uuidv4();
-    
-    const requestedFiTypes = req.body.fiTypes || [
-        "DEPOSIT", "MUTUAL_FUNDS", "EQUITIES", "INSURANCE_POLICIES", 
-        "TERM_DEPOSIT", "NPS", "GSTR1_3B", "BONDS", "ETF"
-    ];
+	if (!mobile && !email) {
+		return null;
+	}
 
-    userSessionStore[consentId] = { fiTypes: requestedFiTypes };
+	const users = await listUsers();
+	return users.find((u) => (mobile && u.mobile === mobile) || (email && u.email === email)) || null;
+}
 
-    console.log(`✅ Consent Created: ${consentId} for types: ${requestedFiTypes.join(', ')}`);
+function computeFallbackInsights(transactions, accounts) {
+	const totals = transactions.reduce(
+		(acc, txn) => {
+			const amount = Number(txn.amount || 0);
+			if (txn.txn_type === 'CREDIT') {
+				acc.totalCredit += amount;
+			} else {
+				acc.totalDebit += amount;
+			}
+			return acc;
+		},
+		{ totalCredit: 0, totalDebit: 0 }
+	);
 
-    res.json({
-        "id": consentId,
-        "status": "APPROVED",
-        "consentHandle": uuidv4(),
-        "createdAt": new Date().toISOString()
-    });
-});
+	const merchantSpend = {};
+	for (const txn of transactions) {
+		if (txn.txn_type !== 'DEBIT' || !txn.merchant_name) {
+			continue;
+		}
+		merchantSpend[txn.merchant_name] = (merchantSpend[txn.merchant_name] || 0) + Number(txn.amount || 0);
+	}
 
-// 2. DATA SESSION FLOW
-app.post('/data/fetch', (req, res) => {
-    const { consentId } = req.body;
-    if (!consentId) return res.status(400).json({ error: "Consent ID missing" });
+	const topMerchants = Object.entries(merchantSpend)
+		.sort((a, b) => b[1] - a[1])
+		.slice(0, 5)
+		.map(([merchant, spend]) => ({ merchant, spend: Number(spend.toFixed(2)) }));
 
-    const sessionId = uuidv4();
-    
-    userSessionStore[sessionId] = userSessionStore[consentId] || { fiTypes: ["DEPOSIT"] };
-    userSessionStore[sessionId].status = "READY";
+	const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+	const recent = transactions.filter((txn) => new Date(txn.txn_timestamp).getTime() >= cutoff);
+	const credit = recent
+		.filter((txn) => txn.txn_type === 'CREDIT')
+		.reduce((sum, txn) => sum + Number(txn.amount || 0), 0);
+	const debit = recent
+		.filter((txn) => txn.txn_type === 'DEBIT')
+		.reduce((sum, txn) => sum + Number(txn.amount || 0), 0);
 
-    console.log(`📦 Data Session Created: ${sessionId}`);
+	return {
+		totals: {
+			lifetimeCredit: Number(totals.totalCredit.toFixed(2)),
+			lifetimeDebit: Number(totals.totalDebit.toFixed(2)),
+			lifetimeNet: Number((totals.totalCredit - totals.totalDebit).toFixed(2))
+		},
+		last30Days: {
+			credit: Number(credit.toFixed(2)),
+			debit: Number(debit.toFixed(2)),
+			net: Number((credit - debit).toFixed(2))
+		},
+		topMerchants,
+		metadata: {
+			txnCount: transactions.length,
+			accountCount: accounts.length
+		}
+	};
+}
 
-    res.json({
-        "sessionId": sessionId,
-        "status": "COMPLETED"
-    });
-});
+function buildFallbackDashboardContext(user) {
+	if (memoryContexts.has(user.id)) {
+		return memoryContexts.get(user.id);
+	}
 
-// 3. DATA FETCH (MAIN ENDPOINT)
-app.get('/data/:sessionId', (req, res) => {
-    const { sessionId } = req.params;
-    const session = userSessionStore[sessionId];
+	const fiTypes = Array.isArray(user.fi_types) && user.fi_types.length > 0 ? user.fi_types : DEFAULT_FI_TYPES;
+	const generated = fiTypes.map((fiType) => ({
+		fiType,
+		payload: generateFIData(fiType, {
+			name: user.full_name,
+			pan: user.pan,
+			mobile: user.mobile,
+			email: user.email
+		})
+	}));
 
-    if (!session) {
-        return res.status(404).json({ error: "Session not found" });
-    }
+	const accounts = [];
 
-    console.log(`📥 Generating data for Session: ${sessionId}`);
-    
-    const userContext = {
-        name: "Rahul Sharma",
-        pan: "ABCPA1234K",
-        mobile: "9876543210",
-        email: "rahul@example.com"
-    };
+	const txns = [];
+	let depositCount = 0;
+	let creditCardCount = 0;
 
-    const fiDataArray = session.fiTypes.map(fiType => {
-        return generateFIData(fiType, userContext);
-    });
+	for (const entry of generated) {
+		const summary = entry.payload?.summary || {};
 
-    res.json({
-        "sessionId": sessionId,
-        "fiData": fiDataArray
-    });
-});
+		if (entry.fiType === 'DEPOSIT' && depositCount < MAX_DEPOSIT_ACCOUNTS) {
+			accounts.push({
+				id: randomUUID(),
+				fi_type: 'DEPOSIT',
+				account_name: summary.bankName || 'Bank Account',
+				account_subtype: summary.type || 'SAVINGS',
+				masked_identifier: summary.maskedAccountNumber || null,
+				current_balance: Number(summary.currentBalance || 0),
+				currency: summary.currency || 'INR',
+				status: summary.status || 'ACTIVE'
+			});
+			depositCount += 1;
+		}
 
-// ---------------------------------------------------------
-// CHATBOT ENDPOINTS
-// ---------------------------------------------------------
+		if (entry.fiType === 'CREDIT_CARD' && creditCardCount < MAX_CREDIT_CARD_ACCOUNTS) {
+			accounts.push({
+				id: randomUUID(),
+				fi_type: 'CREDIT_CARD',
+				account_name: summary.cardName || 'Credit Card',
+				account_subtype: 'CREDIT_CARD',
+				masked_identifier: summary.maskedCardNumber || null,
+				current_balance: Number(summary.availableCredit || 0),
+				credit_limit: Number(summary.creditLimit || 0),
+				outstanding_amount: Number(summary.outstandingAmount || 0),
+				currency: summary.currency || 'INR',
+				status: summary.status || 'ACTIVE'
+			});
+			creditCardCount += 1;
+		}
 
-// Chat endpoint for text-based conversations
-app.post('/chat', async (req, res) => {
-    try {
-        const { messages, temperature = 0.75, maxTokens = 2048 } = req.body;
+		for (const tx of entry.payload?.transactions?.transaction || []) {
+			txns.push({
+				id: randomUUID(),
+				txn_ref: tx.reference || tx.txnId,
+				txn_type: tx.type || 'DEBIT',
+				mode: tx.mode || null,
+				amount: Number(tx.amount || 0),
+				running_balance: tx.currentBalance !== undefined ? Number(tx.currentBalance || 0) : null,
+				txn_timestamp: tx.transactionTimestamp || new Date().toISOString(),
+				value_date: tx.valueDate || null,
+				narration: tx.narration || null,
+				merchant_name: tx.merchant_name || null
+			});
+		}
+	}
 
-        if (!messages || !Array.isArray(messages)) {
-            return res.status(400).json({ error: "Messages array is required" });
-        }
+	txns.sort((a, b) => new Date(b.txn_timestamp) - new Date(a.txn_timestamp));
+	const insights = computeFallbackInsights(txns, accounts);
+	const context = {
+		user,
+		accounts,
+		inferred: {
+			insights,
+			computed_at: new Date().toISOString()
+		},
+		recentTransactions: txns
+	};
 
-        const stream = await openai.chat.completions.create({
-            model: "glm-4.7",
-            messages: messages,
-            stream: false,
-            temperature: temperature,
-            max_tokens: maxTokens
-        });
+	memoryContexts.set(user.id, context);
+	return context;
+}
 
-        console.log(`💬 Chat request processed`);
+async function resolveDashboardContext({ uid, mobile, email, name, pan, fiTypes }) {
+	try {
+		let user = await findUserByIdentifier({ uid, mobile, email });
 
-        res.json({
-            message: stream.choices[0].message.content,
-            usage: stream.usage
-        });
-    } catch (err) {
-        console.error('Chat error:', err.message);
-        res.status(500).json({ error: err.message });
-    }
-});
+		if (!user) {
+			const seeded = await ensureSeededDemoUser({
+				forceRegenerate: false,
+				fiTypes: Array.isArray(fiTypes) && fiTypes.length > 0 ? fiTypes : DEFAULT_FI_TYPES,
+				userContext: {
+					name,
+					pan,
+					mobile,
+					email
+				}
+			});
+			user = seeded.user;
+		}
 
-// Streaming chat endpoint
-app.post('/chat/stream', async (req, res) => {
-    try {
-        const { messages, temperature = 0.75, maxTokens = 2048 } = req.body;
+		const dashboard = await getUserDashboardContext(user.id);
+		return { user, dashboard };
+	} catch (_err) {
+		let user = memoryUsers.find((u) => (uid && u.id === uid) || (mobile && u.mobile === mobile) || (email && u.email === email));
+		if (!user) {
+			user = {
+				id: `demo-${randomUUID()}`,
+				full_name: name || 'Demo User',
+				pan: pan || null,
+				mobile: mobile || null,
+				email: email || null,
+				fi_types: Array.isArray(fiTypes) && fiTypes.length > 0 ? fiTypes : DEFAULT_FI_TYPES,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString()
+			};
+			memoryUsers.push(user);
+		}
 
-        if (!messages || !Array.isArray(messages)) {
-            return res.status(400).json({ error: "Messages array is required" });
-        }
+		return { user, dashboard: buildFallbackDashboardContext(user) };
+	}
+}
 
-        res.setHeader('Content-Type', 'text/event-stream');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Connection', 'keep-alive');
-
-        const stream = await openai.chat.completions.create({
-            model: "glm-4.7",
-            messages: messages,
-            stream: true,
-            temperature: temperature,
-            max_tokens: maxTokens
-        });
-
-        console.log(`💬 Streaming chat request started`);
-
-        for await (const chunk of stream) {
-            const content = chunk.choices[0]?.delta?.content || "";
-            if (content) {
-                res.write(`data: ${JSON.stringify({ content })}\n\n`);
-            }
-        }
-
-        res.write('data: [DONE]\n\n');
-        res.end();
-    } catch (err) {
-        console.error('Streaming chat error:', err.message);
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// ---------------------------------------------------------
-// HEALTH CHECK
-// ---------------------------------------------------------
 app.get('/health', (_req, res) => {
-    res.json({ 
-        status: 'ok', 
-        services: ['account-aggregator', 'chatbot'],
-        timestamp: new Date().toISOString()
-    });
+	res.json({ ok: true, service: 'backend', timestamp: new Date().toISOString() });
 });
 
-// Start server
+app.get('/users', async (_req, res, next) => {
+	try {
+		const users = await listUsers();
+		res.json({ users });
+	} catch (err) {
+		res.json({ users: memoryUsers });
+	}
+});
+
+app.post('/users/demo/seed-many', async (req, res, next) => {
+	try {
+		const forceRegenerate = Boolean(req.body?.forceRegenerate);
+		const results = [];
+
+		for (const profile of DEMO_USER_PROFILES) {
+			const seeded = await ensureSeededDemoUser({
+				forceRegenerate,
+				fiTypes: profile.fiTypes || DEFAULT_FI_TYPES,
+				userContext: profile
+			});
+			results.push({
+				userId: seeded.user.id,
+				fullName: seeded.user.full_name,
+				mobile: seeded.user.mobile,
+				email: seeded.user.email,
+				seeded: seeded.seeded,
+				recordCount: seeded.recordCount || 0
+			});
+		}
+
+		res.json({ count: results.length, users: results });
+	} catch (err) {
+		const forceRegenerate = Boolean(req.body?.forceRegenerate);
+		if (forceRegenerate) {
+			memoryContexts.clear();
+		}
+
+		for (const user of memoryUsers) {
+			buildFallbackDashboardContext(user);
+		}
+
+		res.json({
+			count: memoryUsers.length,
+			users: memoryUsers.map((u) => ({
+				userId: u.id,
+				fullName: u.full_name,
+				mobile: u.mobile,
+				email: u.email,
+				seeded: true
+			}))
+		});
+	}
+});
+
+app.get('/users/:userId/dashboard-context', async (req, res, next) => {
+	try {
+		const context = await getUserDashboardContext(req.params.userId);
+		if (!context) {
+			res.status(404).json({ error: 'User not found' });
+			return;
+		}
+
+		res.json(context);
+	} catch (err) {
+		const user = memoryUsers.find((u) => u.id === req.params.userId);
+		if (!user) {
+			res.status(404).json({ error: 'User not found' });
+			return;
+		}
+
+		res.json(buildFallbackDashboardContext(user));
+	}
+});
+
+app.post('/api/data', async (req, res, next) => {
+	try {
+		const uid = req.body?.uid || req.body?.userId || null;
+		const mobile = req.body?.mobile || req.body?.phone || null;
+		const email = req.body?.email || null;
+		const name = req.body?.name || null;
+		const pan = req.body?.pan || null;
+		const fiTypes = req.body?.fiTypes || null;
+		const wantTransactions = toBoolHeader(req.header('TXN'));
+
+		if (!uid && !mobile && !email) {
+			res.status(400).json({ error: 'Provide one identifier: uid, mobile, or email' });
+			return;
+		}
+
+		const { user, dashboard } = await resolveDashboardContext({
+			uid,
+			mobile,
+			email,
+			name,
+			pan,
+			fiTypes
+		});
+
+		if (!dashboard) {
+			res.status(404).json({ error: 'No data found for user' });
+			return;
+		}
+
+		const inferred = dashboard.inferred?.insights || null;
+
+		if (wantTransactions) {
+			res.json({
+				user,
+				accounts: dashboard.accounts,
+				transactions: dashboard.recentTransactions,
+				inferred
+			});
+			return;
+		}
+
+		res.json({
+			user,
+			accounts: dashboard.accounts,
+			inferred
+		});
+	} catch (err) {
+		next(err);
+	}
+});
+
+app.use((err, _req, res, _next) => {
+	console.error('Backend error:', err);
+	res.status(500).json({ error: err.message || 'Internal server error' });
+});
+
 app.listen(PORT, () => {
-    console.log(`🚀 Unified Backend Server running on http://localhost:${PORT}`);
-    console.log(`📊 Account Aggregator API ready`);
-    console.log(`💬 Chatbot API ready`);
+	console.log(`Backend listening on http://localhost:${PORT}`);
 });

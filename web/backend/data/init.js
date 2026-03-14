@@ -7,9 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function initDatabase() {
-    const client = await pool.connect();
+    let client;
     
     try {
+        client = await pool.connect();
         console.log('🔧 Initializing database...');
         
         // Read and execute schema
@@ -27,15 +28,20 @@ async function initDatabase() {
         console.error('❌ Database initialization failed:', err.message);
         throw err;
     } finally {
-        client.release();
+        if (client) {
+            client.release();
+        }
     }
 }
 
 // Run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
     initDatabase()
         .then(() => process.exit(0))
-        .catch(() => process.exit(1));
+        .catch((err) => {
+            console.error('❌ Initialization script failed:', err.message);
+            process.exit(1);
+        });
 }
 
 export default initDatabase;
